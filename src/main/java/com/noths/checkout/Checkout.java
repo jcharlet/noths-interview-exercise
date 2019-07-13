@@ -43,23 +43,35 @@ public class Checkout {
 
         for(Product product: scannedProductsMap.keySet()){
             Integer nbItems = scannedProductsMap.get(product);
-            Float price = product.getPrice();
-            if(!productPromotionalRules.isEmpty()){
-                PromotionalRule rule = productPromotionalRules.get(product.getProductCode());
-                if(rule!=null && nbItems>=rule.getThreshold()){
-                    price=rule.getDiscount();
-                }
-            }
+            Float price = getPriceWithDiscountIfAny(product, nbItems);
+
             total= total.add(new BigDecimal(price.toString()).multiply(new BigDecimal(nbItems.toString())));
         }
-        if(!totalPromotionalRules.isEmpty()) {
-            for (PromotionalRule rule : totalPromotionalRules) {
-                if (total.compareTo(new BigDecimal(rule.getThreshold().toString()))>0) {
-                    BigDecimal discountedPrice = total.multiply(new BigDecimal(Float.toString(1 - rule.getDiscount())));
-                    return discountedPrice.setScale(2, RoundingMode.CEILING).floatValue();
-                }
+
+        Float discountedPrice = getDiscountedTotalPrice(total);
+        if (discountedPrice != null) return discountedPrice;
+
+        return total.floatValue();
+    }
+
+    private Float getDiscountedTotalPrice(BigDecimal total) {
+        for (PromotionalRule rule : totalPromotionalRules) {
+            if (total.compareTo(new BigDecimal(rule.getThreshold().toString()))>0) {
+                BigDecimal discountedPrice = total.multiply(new BigDecimal(Float.toString(1 - rule.getDiscount())));
+                return discountedPrice.setScale(2, RoundingMode.CEILING).floatValue();
             }
         }
-        return total.floatValue();
+        return null;
+    }
+
+    private Float getPriceWithDiscountIfAny(Product product, Integer nbItems) {
+        Float price = product.getPrice();
+        if(!productPromotionalRules.isEmpty()){
+            PromotionalRule rule = productPromotionalRules.get(product.getProductCode());
+            if(rule!=null && nbItems>=rule.getThreshold()){
+                price=rule.getDiscount();
+            }
+        }
+        return price;
     }
 }
