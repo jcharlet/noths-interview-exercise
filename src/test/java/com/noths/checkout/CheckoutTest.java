@@ -14,6 +14,36 @@ class CheckoutTest {
 
     @Test
     void testThatICanCheckoutItems() {
+        //Given checkout class without promotional rules
+        Checkout checkout = new Checkout(null);
+
+        // and scanned items
+        checkout.scan(new Product("001","Travel Card Holder", 9.25));
+        checkout.scan(new Product("002","Personalised cufflinks", 45));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+
+        //when I retrieve the total
+        Double price = checkout.total();
+
+        // then I get expected value
+        assertEquals(74.2,price);
+    }
+    @Test
+    void testThatICanCheckoutWithAnEmptyBasket() {
+        //Given checkout class without promotional rules
+        Checkout checkout = new Checkout(null);
+
+        // and no scanned item
+
+        //when I retrieve the total
+        Double price = checkout.total();
+
+        // then I get expected value
+        assertEquals(0,price);
+    }
+
+    @Test
+    void testThatICanCheckoutItemsWithPromotionalRules() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
         promotionalRules.add(new PromotionalRule("001",8.50f,2));
