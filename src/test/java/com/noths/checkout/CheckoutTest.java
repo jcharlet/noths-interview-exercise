@@ -16,7 +16,8 @@ class CheckoutTest {
     void testThatICanCheckoutItems() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
-        //TODO provide rules
+        promotionalRules.add(new PromotionalRule("001",8.50f,2));
+        promotionalRules.add(new PromotionalRule(0.10f,60));
 
         //and checkout class
         Checkout checkout = new Checkout(promotionalRules);
