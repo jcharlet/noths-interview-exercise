@@ -65,10 +65,9 @@ class CheckoutTest {
     }
 
     @Test
-    void testThatICanCheckoutItemsWithAllPromotionalRules() {
+    void testThatICanCheckoutItemsWithTotalPromotionalRule() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
-        promotionalRules.add(new PromotionalRule("001",8.50f,2));
         promotionalRules.add(new PromotionalRule(0.10f,60));
 
         //and checkout class
@@ -84,6 +83,28 @@ class CheckoutTest {
 
         // then I get expected value
         assertEquals(66.78,price);
+    }
+
+    @Test
+    void testThatICanCheckoutItemsWithCompetingTotalPromotionalRules() {
+        //given promotional rules
+        List<PromotionalRule> promotionalRules = new ArrayList<>();
+        promotionalRules.add(new PromotionalRule(0.10f,60));
+        promotionalRules.add(new PromotionalRule(0.15f,70));
+
+        //and checkout class
+        Checkout checkout = new Checkout(promotionalRules);
+
+        // and scanned items
+        checkout.scan(new Product("001","Travel Card Holder", 9.25));
+        checkout.scan(new Product("002","Personalised cufflinks", 45));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+
+        //when I retrieve the total
+        Double price = checkout.total();
+
+        // then I get expected value
+        assertEquals(63.07,price);
     }
 
 

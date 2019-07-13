@@ -4,6 +4,7 @@ import com.noths.checkout.domain.Product;
 import com.noths.checkout.domain.PromotionType;
 import com.noths.checkout.domain.PromotionalRule;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +31,16 @@ public class Checkout {
     public Double total() {
         double total = 0;
         Map<String,PromotionalRule> productPromotionalRules = null;
+        List<PromotionalRule> totalPromotionalRules = null;
         if(promotionalRules!=null){
             productPromotionalRules = promotionalRules.stream()
                     .filter(product -> product.getPromotionType()== PromotionType.PRODUCT)
                     .collect(Collectors.toMap(PromotionalRule::getProductCode,Function.identity()));
+
+            totalPromotionalRules = promotionalRules.stream()
+                    .filter(product -> product.getPromotionType()== PromotionType.TOTAL)
+                    .collect(Collectors.toList());
+            totalPromotionalRules.sort(Comparator.comparingDouble(PromotionalRule::getThreshold).reversed());
         }
 
         for(Product product: scannedProductsMap.keySet()){
@@ -46,6 +53,13 @@ public class Checkout {
                 }
             }
             total+= price * numberOfItems;
+        }
+        if(totalPromotionalRules!=null) {
+            for (PromotionalRule rule : totalPromotionalRules) {
+                if (total > rule.getThreshold()) {
+                    return (double) Math.round(100 * total * (1 - rule.getDiscount())) / 100;
+                }
+            }
         }
         return total;
     }
