@@ -1,11 +1,14 @@
 package com.noths.checkout;
 
 import com.noths.checkout.domain.Product;
+import com.noths.checkout.domain.PromotionType;
 import com.noths.checkout.domain.PromotionalRule;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Checkout {
 
@@ -26,8 +29,23 @@ public class Checkout {
 
     public Double total() {
         double total = 0;
+        Map<String,PromotionalRule> productPromotionalRules = null;
+        if(promotionalRules!=null){
+            productPromotionalRules = promotionalRules.stream()
+                    .filter(product -> product.getPromotionType()== PromotionType.PRODUCT)
+                    .collect(Collectors.toMap(PromotionalRule::getProductCode,Function.identity()));
+        }
+
         for(Product product: scannedProductsMap.keySet()){
-            total+=product.getPrice()*scannedProductsMap.get(product);
+            Integer numberOfItems = scannedProductsMap.get(product);
+            double price = product.getPrice();
+            if(productPromotionalRules!=null){
+                PromotionalRule rule = productPromotionalRules.get(product.getProductCode());
+                if(rule!=null && numberOfItems>=rule.getThreshold()){
+                    price=rule.getDiscount();
+                }
+            }
+            total+= price * numberOfItems;
         }
         return total;
     }
