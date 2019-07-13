@@ -4,6 +4,8 @@ import com.noths.checkout.domain.Product;
 import com.noths.checkout.domain.PromotionType;
 import com.noths.checkout.domain.PromotionalRule;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -28,8 +30,8 @@ public class Checkout {
         scannedProductsMap.put(product,numberOfItems+1);
     }
 
-    public Double total() {
-        double total = 0;
+    public Float total() {
+        BigDecimal total = new BigDecimal("0");
         Map<String,PromotionalRule> productPromotionalRules = null;
         List<PromotionalRule> totalPromotionalRules = null;
         if(promotionalRules!=null){
@@ -45,22 +47,23 @@ public class Checkout {
 
         for(Product product: scannedProductsMap.keySet()){
             Integer numberOfItems = scannedProductsMap.get(product);
-            double price = product.getPrice();
+            Float price = product.getPrice();
             if(productPromotionalRules!=null){
                 PromotionalRule rule = productPromotionalRules.get(product.getProductCode());
                 if(rule!=null && numberOfItems>=rule.getThreshold()){
                     price=rule.getDiscount();
                 }
             }
-            total+= price * numberOfItems;
+            total= total.add(new BigDecimal(price.toString()).multiply(new BigDecimal(numberOfItems.toString())));
         }
         if(totalPromotionalRules!=null) {
             for (PromotionalRule rule : totalPromotionalRules) {
-                if (total > rule.getThreshold()) {
-                    return (double) Math.round(100 * total * (1 - rule.getDiscount())) / 100;
+                if (total.compareTo(new BigDecimal(rule.getThreshold().toString()))>0) {
+                    BigDecimal discountedPrice = total.multiply(new BigDecimal(Float.toString(1 - rule.getDiscount())));
+                    return discountedPrice.setScale(2, RoundingMode.CEILING).floatValue();
                 }
             }
         }
-        return total;
+        return total.floatValue();
     }
 }

@@ -5,9 +5,9 @@ import java.util.Objects;
 public class Product {
     private String productCode;
     private String name;
-    private double price;
+    private Float price;
 
-    public Product(String productCode, String name, double price) {
+    public Product(String productCode, String name, Float price) {
         this.productCode = productCode;
         this.name = name;
         this.price = price;
@@ -29,11 +29,11 @@ public class Product {
         this.name = name;
     }
 
-    public double getPrice() {
+    public Float getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(Float price) {
         this.price = price;
     }
 

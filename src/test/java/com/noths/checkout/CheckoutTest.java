@@ -18,15 +18,15 @@ class CheckoutTest {
         Checkout checkout = new Checkout(null);
 
         // and scanned items
-        checkout.scan(new Product("001","Travel Card Holder", 9.25));
-        checkout.scan(new Product("002","Personalised cufflinks", 45));
-        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("002","Personalised cufflinks", 45.0f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
 
         //when I retrieve the total
-        Double price = checkout.total();
+        Float price = checkout.total();
 
         // then I get expected value
-        assertEquals(74.2,price);
+        assertEquals(74.2f,price);
     }
     @Test
     void testThatICanCheckoutWithAnEmptyBasket() {
@@ -36,77 +36,123 @@ class CheckoutTest {
         // and no scanned item
 
         //when I retrieve the total
-        Double price = checkout.total();
+        Float price = checkout.total();
 
         // then I get expected value
-        assertEquals(0,price);
+        assertEquals(0f,price);
     }
 
     @Test
     void testThatICanCheckoutItemsWithProductPromotionalRules() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
-        promotionalRules.add(new PromotionalRule("001",8.50f,2));
+        promotionalRules.add(new PromotionalRule("001",8.50f,2.0f));
 
         //and checkout class
         Checkout checkout = new Checkout(promotionalRules);
 
         // and scanned items
-        checkout.scan(new Product("001","Travel Card Holder", 9.25));
-        checkout.scan(new Product("002","Personalised cufflinks", 45));
-        checkout.scan(new Product("001","Travel Card Holder", 9.25));
-        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("002","Personalised cufflinks", 45.0f));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
 
         //when I retrieve the total
-        Double price = checkout.total();
+        Float price = checkout.total();
 
         // then I get expected value
-        assertEquals(81.95,price);
+        assertEquals(81.95f,price);
     }
 
     @Test
     void testThatICanCheckoutItemsWithTotalPromotionalRule() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
-        promotionalRules.add(new PromotionalRule(0.10f,60));
+        promotionalRules.add(new PromotionalRule(0.10f,60.0f));
 
         //and checkout class
         Checkout checkout = new Checkout(promotionalRules);
 
         // and scanned items
-        checkout.scan(new Product("001","Travel Card Holder", 9.25));
-        checkout.scan(new Product("002","Personalised cufflinks", 45));
-        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("002","Personalised cufflinks", 45.0f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
 
         //when I retrieve the total
-        Double price = checkout.total();
+        Float price = checkout.total();
 
         // then I get expected value
-        assertEquals(66.78,price);
+        assertEquals(66.78f,price);
     }
 
     @Test
     void testThatICanCheckoutItemsWithCompetingTotalPromotionalRules() {
         //given promotional rules
         List<PromotionalRule> promotionalRules = new ArrayList<>();
-        promotionalRules.add(new PromotionalRule(0.10f,60));
-        promotionalRules.add(new PromotionalRule(0.15f,70));
+        promotionalRules.add(new PromotionalRule(0.10f,60.0f));
+        promotionalRules.add(new PromotionalRule(0.15f,70.0f));
 
         //and checkout class
         Checkout checkout = new Checkout(promotionalRules);
 
         // and scanned items
-        checkout.scan(new Product("001","Travel Card Holder", 9.25));
-        checkout.scan(new Product("002","Personalised cufflinks", 45));
-        checkout.scan(new Product("003","Kids T-shirt", 19.95));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("002","Personalised cufflinks", 45.0f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
 
         //when I retrieve the total
-        Double price = checkout.total();
+        Float price = checkout.total();
 
         // then I get expected value
-        assertEquals(63.07,price);
+        assertEquals(63.07f,price);
     }
 
+
+    @Test
+    void testThatICanCheckoutItemsWithPromotionalRules() {
+        //given promotional rules
+        List<PromotionalRule> promotionalRules = new ArrayList<>();
+        promotionalRules.add(new PromotionalRule(0.10f,60.0f));
+        promotionalRules.add(new PromotionalRule("001",8.50f,2.0f));
+
+        //and checkout class
+        Checkout checkout = new Checkout(promotionalRules);
+
+        // and scanned items
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+
+        //when I retrieve the total
+        Float price = checkout.total();
+
+        // then I get expected value
+        assertEquals(36.95f,price);
+    }
+
+
+    @Test
+    void testThatICanCheckoutItemsWithPromotionalRules2() {
+        //given promotional rules
+        List<PromotionalRule> promotionalRules = new ArrayList<>();
+        promotionalRules.add(new PromotionalRule(0.10f,60.0f));
+        promotionalRules.add(new PromotionalRule("001",8.50f,2.0f));
+
+        //and checkout class
+        Checkout checkout = new Checkout(promotionalRules);
+
+        // and scanned items
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("002","Personalised cufflinks", 45.0f));
+        checkout.scan(new Product("001","Travel Card Holder", 9.25f));
+        checkout.scan(new Product("003","Kids T-shirt", 19.95f));
+
+        //when I retrieve the total
+        Float price = checkout.total();
+
+        // then I get expected value
+        assertEquals(73.76f,price);
+    }
 
 
 }
