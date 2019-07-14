@@ -3,6 +3,9 @@ package com.noths.checkout;
 import com.noths.checkout.domain.Product;
 import com.noths.checkout.domain.PromotionType;
 import com.noths.checkout.domain.PromotionalRule;
+import com.noths.checkout.domain.ScannedProduct;
+import com.noths.checkout.repository.IScannedProductsRepository;
+import com.noths.checkout.repository.impl.ScannedProductMemoryRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,7 +18,7 @@ public class Checkout {
     private Map<String, PromotionalRule> productPromotionalRules = new HashMap<>();
     private List<PromotionalRule> totalPromotionalRules = new ArrayList<>();
 
-    private Map<Product,Integer> scannedProductsMap = new HashMap<>();
+    IScannedProductsRepository scannedProductsRepository = new ScannedProductMemoryRepository();
 
     public Checkout(List<PromotionalRule> promotionalRules) {
         if(promotionalRules!=null) {
@@ -31,18 +34,20 @@ public class Checkout {
     }
 
     public void scan(Product product) {
-        Integer nbItems = scannedProductsMap.get(product);
-        if(nbItems==null){
-            nbItems=0;
+        ScannedProduct scannedProduct = scannedProductsRepository.findByProductCode(product.getProductCode());
+        if(scannedProduct==null){
+            scannedProductsRepository.save(new ScannedProduct(product.getProductCode(),product.getName(),product.getPrice(),1));
+        }else{
+            Integer nbItems = scannedProduct.getNbItems();
+            scannedProductsRepository.save(new ScannedProduct(product.getProductCode(),product.getName(),product.getPrice(),nbItems+1));
         }
-        scannedProductsMap.put(product,nbItems+1);
     }
 
     public Float total() {
         BigDecimal total = new BigDecimal("0");
 
-        for(Product product: scannedProductsMap.keySet()){
-            Integer nbItems = scannedProductsMap.get(product);
+        for(ScannedProduct product: scannedProductsRepository.findAll()){
+            Integer nbItems = product.getNbItems();
             Float discountedPrice = getDiscountedPriceForProduct(product, nbItems);
             Float price = discountedPrice!=null?discountedPrice:product.getPrice();
 
