@@ -43,18 +43,19 @@ public class Checkout {
 
         for(Product product: scannedProductsMap.keySet()){
             Integer nbItems = scannedProductsMap.get(product);
-            Float price = getPriceWithDiscountIfAny(product, nbItems);
+            Float discountedPrice = getDiscountedPriceForProduct(product, nbItems);
+            Float price = discountedPrice!=null?discountedPrice:product.getPrice();
 
             total= total.add(new BigDecimal(price.toString()).multiply(new BigDecimal(nbItems.toString())));
         }
 
-        Float discountedPrice = getDiscountedTotalPrice(total);
+        Float discountedPrice = getDiscountedPriceForTotal(total);
         if (discountedPrice != null) return discountedPrice;
 
         return total.floatValue();
     }
 
-    private Float getDiscountedTotalPrice(BigDecimal total) {
+    private Float getDiscountedPriceForTotal(BigDecimal total) {
         for (PromotionalRule rule : totalPromotionalRules) {
             if (total.compareTo(new BigDecimal(rule.getThreshold().toString()))>0) {
                 BigDecimal discountedPrice = total.multiply(new BigDecimal(Float.toString(1 - rule.getDiscount())));
@@ -64,14 +65,13 @@ public class Checkout {
         return null;
     }
 
-    private Float getPriceWithDiscountIfAny(Product product, Integer nbItems) {
-        Float price = product.getPrice();
+    private Float getDiscountedPriceForProduct(Product product, Integer nbItems) {
         if(!productPromotionalRules.isEmpty()){
             PromotionalRule rule = productPromotionalRules.get(product.getProductCode());
             if(rule!=null && nbItems>=rule.getThreshold()){
-                price=rule.getDiscount();
+                return rule.getDiscount();
             }
         }
-        return price;
+        return null;
     }
 }
